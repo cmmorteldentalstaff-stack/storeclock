@@ -1,16 +1,24 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-  <title>Store P6 Clock</title>
+  <title>Store P6 Attendance</title>
 </head>
 
 <body style="font-family:sans-serif; text-align:center; margin-top:50px;">
 
 <h2>Store P6 Attendance</h2>
 
-<div id="status">Checking network...</div>
+<div id="login">
+  <h3>Login</h3>
+  <input id="username" placeholder="Username"><br><br>
+  <input id="password" type="password" placeholder="Password"><br><br>
+  <button onclick="login()">LOGIN</button>
+  <p id="loginStatus"></p>
+</div>
 
 <div id="app" style="display:none;">
+  <p id="wifiStatus"></p>
+
   <br>
   <button onclick="generateCode('IN')">TIME IN</button>
   <button onclick="generateCode('OUT')">TIME OUT</button>
@@ -19,39 +27,58 @@
 </div>
 
 <script>
-const STORE_IP = "112.198.45.123"; // CHANGE THIS
+
+// 🔒 CHANGE THIS TO YOUR STORE WIFI IP
+const STORE_IP = "YOUR_IP_HERE";
+
+// 👥 SIMPLE USERS (EDIT THIS)
+const users = {
+  "harold": { password: "1234", short: "HRLD" },
+  "anna": { password: "1234", short: "ANNA" }
+};
+
+let currentUser = null;
+
+async function login() {
+  let u = document.getElementById("username").value.toLowerCase();
+  let p = document.getElementById("password").value;
+
+  if(users[u] && users[u].password === p){
+    currentUser = users[u];
+
+    document.getElementById("login").style.display = "none";
+
+    // after login → check wifi
+    checkIP();
+
+  } else {
+    document.getElementById("loginStatus").innerText = "❌ Invalid login";
+  }
+}
 
 async function checkIP() {
   const res = await fetch("https://api.ipify.org?format=json");
   const data = await res.json();
 
   if(data.ip === STORE_IP){
-    document.getElementById("status").innerText = "✅ Connected to Store WiFi";
+    document.getElementById("wifiStatus").innerText = "✅ Connected to Store WiFi";
     document.getElementById("app").style.display = "block";
   } else {
-    document.getElementById("status").innerText = "❌ Connect to store WiFi to use this";
+    document.getElementById("wifiStatus").innerText = "❌ Connect to store WiFi";
   }
 }
 
-function removeVowels(name){
-  return name.replace(/[AEIOU]/gi, '');
-}
-
 function generateCode(type){
-  let name = prompt("Enter your name").toUpperCase();
-  let shortName = removeVowels(name);
-
   let random = Math.random().toString(36).substring(2,7).toUpperCase();
   let time = new Date();
   let hh = String(time.getHours()).padStart(2,'0');
   let mm = String(time.getMinutes()).padStart(2,'0');
 
-  let code = `${shortName}-${type}-${random}-${hh}${mm}-P6`;
+  let code = `${currentUser.short}-${type}-${random}-${hh}${mm}-P6`;
 
   document.getElementById("code").innerText = code;
 }
 
-checkIP();
 </script>
 
 </body>
