@@ -1,0 +1,58 @@
+ <!DOCTYPE html>
+<html>
+<head>
+  <title>Store P6 Clock</title>
+</head>
+
+<body style="font-family:sans-serif; text-align:center; margin-top:50px;">
+
+<h2>Store P6 Attendance</h2>
+
+<div id="status">Checking network...</div>
+
+<div id="app" style="display:none;">
+  <br>
+  <button onclick="generateCode('IN')">TIME IN</button>
+  <button onclick="generateCode('OUT')">TIME OUT</button>
+
+  <h3 id="code"></h3>
+</div>
+
+<script>
+const STORE_IP = "112.198.45.123"; // CHANGE THIS
+
+async function checkIP() {
+  const res = await fetch("https://api.ipify.org?format=json");
+  const data = await res.json();
+
+  if(data.ip === STORE_IP){
+    document.getElementById("status").innerText = "✅ Connected to Store WiFi";
+    document.getElementById("app").style.display = "block";
+  } else {
+    document.getElementById("status").innerText = "❌ Connect to store WiFi to use this";
+  }
+}
+
+function removeVowels(name){
+  return name.replace(/[AEIOU]/gi, '');
+}
+
+function generateCode(type){
+  let name = prompt("Enter your name").toUpperCase();
+  let shortName = removeVowels(name);
+
+  let random = Math.random().toString(36).substring(2,7).toUpperCase();
+  let time = new Date();
+  let hh = String(time.getHours()).padStart(2,'0');
+  let mm = String(time.getMinutes()).padStart(2,'0');
+
+  let code = `${shortName}-${type}-${random}-${hh}${mm}-P6`;
+
+  document.getElementById("code").innerText = code;
+}
+
+checkIP();
+</script>
+
+</body>
+</html>
